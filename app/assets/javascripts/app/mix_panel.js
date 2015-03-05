@@ -110,8 +110,8 @@ App.addChild('MixPanel', {
   },
 
   onLogin: function(){
-    mixpanel.alias(this.user.id);
     if(this.user.created_today){
+      mixpanel.alias(this.user.id);
       this.track("Signed up");
     }
     else{
@@ -120,13 +120,16 @@ App.addChild('MixPanel', {
   },
 
   detectLogin: function(){
-    if(this.user){
-      if(this.user.id != store.get('user_id')){
+    if(this.user){ // User is logged in
+      if(this.user.id != store.get('user_id')){ // First page load after login
         this.onLogin();
         store.set('user_id', this.user.id);
       }
     }
-    else{
+    else if(store.get('user_id')){ // Logout
+      if(mixpanel && mixpanel.cookie){
+        mixpanel.cookie.clear();
+      }
       store.set('user_id', null);
     }
   },
